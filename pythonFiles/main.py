@@ -1,6 +1,5 @@
 from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
-from pprint import pprint
 
 '''
 def generate_delta_table(DFA):
@@ -42,7 +41,7 @@ def count(str_length, dfa, delta_table):
     # below code block builds list of accepting states (does it make more sense to make this a dict?)
     final = [False for i in range(len(dfa.states))]
     i = 0
-    for state in dfa.states:
+    for state in curr_dict:
         if state in dfa.final_states:
             final[i] = True
             curr_dict[state] = 1
@@ -59,16 +58,16 @@ def count(str_length, dfa, delta_table):
     for i in range(str_length):
         k = 0
         for state in dfa.states:
-            curr0 = curr_dict[delta_table[k][0]]
-            curr1 = curr_dict[delta_table[k][1]]
-            curr2 = curr_dict[delta_table[k][2]]
-            curr3 = curr_dict[delta_table[k][3]]
-            curr4 = curr_dict[delta_table[k][4]]
-            curr5 = curr_dict[delta_table[k][5]]
-            curr6 = curr_dict[delta_table[k][6]]
-            curr7 = curr_dict[delta_table[k][7]]
-            curr8 = curr_dict[delta_table[k][8]]
-            curr9 = curr_dict[delta_table[k][9]]
+            curr0 = curr_dict[dfa.transitions[state]['0']]
+            curr1 = curr_dict[dfa.transitions[state]['1']]
+            curr2 = curr_dict[dfa.transitions[state]['2']]
+            curr3 = curr_dict[dfa.transitions[state]['3']]
+            curr4 = curr_dict[dfa.transitions[state]['4']]
+            curr5 = curr_dict[dfa.transitions[state]['5']]
+            curr6 = curr_dict[dfa.transitions[state]['6']]
+            curr7 = curr_dict[dfa.transitions[state]['7']]
+            curr8 = curr_dict[dfa.transitions[state]['8']]
+            curr9 = curr_dict[dfa.transitions[state]['9']]
             k += 1
             next_dict[state] = curr0 + curr1 + curr2 + curr3 + curr4 + curr5 + curr6 + curr7 + curr8 + curr9
             '''
@@ -80,8 +79,18 @@ def count(str_length, dfa, delta_table):
         for state1 in dfa.states:
             curr_dict[state1] = next_dict[state1]
 
+        key_list = list(curr_dict.keys())
+        val_list = list(curr_dict.values())
+        if 37 in val_list:
+            print("correct key is", key_list[val_list.index(37)])
+            #print("This should display 37", curr_dict['q0'])
+        for values in range(len(val_list)):
+            if val_list[values] == 37:
+                index = values
+                print("correct value found at", index)
+
     first = list(curr_dict.keys())[0]
-    return curr_dict[first]
+    return curr_dict['{q0}']
 
 
 def main():
@@ -143,7 +152,7 @@ def main():
     #pprint(delta_table)
 
     num_strings = count(str_length, min_dfa, delta_table)
-    print("The number of strings of length", str_length, "accepted by the DFA is ", num_strings)
+    print("The number of strings of length", str_length, "accepted by the DFA is", num_strings)
 
 
 main()
