@@ -1,9 +1,91 @@
 from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
+from pprint import pprint
+
+'''
+def generate_delta_table(DFA):
+    delta_table = [[0 for i in range(10)] for j in range(len(DFA.states))]
+    i = 0
+    for state in range(len(DFA.transitions)):
+        for input_symbol in DFA.input_symbols:
+            delta_table[i][int(input_symbol)] = (DFA.transitions[state])
+        i += 1
+    return delta_table
+'''
+
+
+def generate_delta_table(DFA):
+    delta_table = [[0 for i in range(10)] for j in range(len(DFA.states))]
+    i = 0
+    for state in DFA.transitions:
+        for input_symbol in DFA.input_symbols:
+            delta_table[i][int(input_symbol)] = (DFA.transitions[state][input_symbol])
+        i += 1
+    return delta_table
+
+
+def state_to_int(dfa, output_state):
+    # converts a state to an integer based on its location in dfa.states
+    state_list = list(dfa.states)
+    for i in range(len(state_list)):
+        if output_state == state_list[i]:
+            return i
+    print("State not found")
+
+
+def count(str_length, dfa, delta_table):
+    curr_dict = {}
+    next_dict = {}
+    for state in dfa.states:
+        curr_dict[state] = 0
+        next_dict[state] = 0
+    # below code block builds list of accepting states (does it make more sense to make this a dict?)
+    final = [False for i in range(len(dfa.states))]
+    i = 0
+    for state in dfa.states:
+        if state in dfa.final_states:
+            final[i] = True
+            curr_dict[state] = 1
+        i += 1
+
+    # below code block builds "current" array
+    current = [0 for i in range(len(dfa.states))]
+    for j in range(len(dfa.states)):
+        if final[j]:
+            current[j] = 1
+
+    # build next array from current array
+    next_array = [0 for i in range(len(dfa.states))]
+    for i in range(str_length):
+        k = 0
+        for state in dfa.states:
+            curr0 = curr_dict[delta_table[k][0]]
+            curr1 = curr_dict[delta_table[k][1]]
+            curr2 = curr_dict[delta_table[k][2]]
+            curr3 = curr_dict[delta_table[k][3]]
+            curr4 = curr_dict[delta_table[k][4]]
+            curr5 = curr_dict[delta_table[k][5]]
+            curr6 = curr_dict[delta_table[k][6]]
+            curr7 = curr_dict[delta_table[k][7]]
+            curr8 = curr_dict[delta_table[k][8]]
+            curr9 = curr_dict[delta_table[k][9]]
+            k += 1
+            next_dict[state] = curr0 + curr1 + curr2 + curr3 + curr4 + curr5 + curr6 + curr7 + curr8 + curr9
+            '''
+        next_array[k] = current[state_to_int(dfa, delta_table[k][0])] + current[state_to_int(dfa, delta_table[k][1])] + current[state_to_int(dfa, delta_table[k][2])] + \
+                            current[state_to_int(dfa, delta_table[k][3])] + current[state_to_int(dfa, delta_table[k][4])] + current[state_to_int(dfa, delta_table[k][5])] + \
+                            current[state_to_int(dfa, delta_table[k][6])] + current[state_to_int(dfa, delta_table[k][7])] + current[state_to_int(dfa, delta_table[k][8])] + \
+                            current[state_to_int(dfa, delta_table[k][9])]
+        '''
+        for state1 in dfa.states:
+            curr_dict[state1] = next_dict[state1]
+
+    first = list(curr_dict.keys())[0]
+    return curr_dict[first]
 
 
 def main():
-    nfa = NFA(
+    nfa = NFA(  # this code builds the weakly divisible by 7 NFA
         states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q0prime', 'q1prime', 'q2prime', 'q3prime',
                 'q4prime', 'q5prime', 'q6prime'},
         input_symbols={'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'},
@@ -48,12 +130,20 @@ def main():
         final_states={'q0', 'q0prime'}
     )
 
-    dfa = DFA.from_nfa(nfa)
-    print(nfa.accepts_input('0147'))
-    print(nfa.accepts_input('1047'))
+    str_length = int(input("Enter an integer for string length: "))
+    dfa = DFA.from_nfa(nfa)     # creates a DFA from the above built NFA
+    print("Minifying DFA...")
+    min_dfa = dfa.minify()
+    #min_dfa.transitions = sorted(min_dfa.transitions)
+    min_dfa.states = sorted(min_dfa.states)
+    #print(min_dfa.accepts_input('0147'))  # should be false
+    #print(min_dfa.accepts_input('1047'))  # should be true
 
-    print(dfa.accepts_input('0147'))
-    print(dfa.accepts_input('1047'))
+    delta_table = generate_delta_table(min_dfa)
+    #pprint(delta_table)
+
+    num_strings = count(str_length, min_dfa, delta_table)
+    print("The number of strings of length", str_length, "accepted by the DFA is ", num_strings)
 
 
 main()
