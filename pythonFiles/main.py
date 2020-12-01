@@ -3,50 +3,46 @@ from automata.fa.dfa import DFA
 
 
 def count(str_length, dfa):
-
     curr_dict = {}
     next_dict = {}
     for state in dfa.states:
         curr_dict[state] = 0
         next_dict[state] = 0
 
-    # below code block builds list of accepting states
-    final = [False for i in range(len(dfa.states))]
-    i = 0
+    # below code block populates curr_dict at accepting states
     for state in curr_dict:
         if state in dfa.final_states:
-            final[i] = True
             curr_dict[state] = 1
-        i += 1
 
     # build next_dict from curr_dict
     for i in range(str_length):
         for state in dfa.states:
-            curr0 = curr_dict[dfa.transitions[state]['0']]
-            curr1 = curr_dict[dfa.transitions[state]['1']]
-            curr2 = curr_dict[dfa.transitions[state]['2']]
-            curr3 = curr_dict[dfa.transitions[state]['3']]
-            curr4 = curr_dict[dfa.transitions[state]['4']]
-            curr5 = curr_dict[dfa.transitions[state]['5']]
-            curr6 = curr_dict[dfa.transitions[state]['6']]
-            curr7 = curr_dict[dfa.transitions[state]['7']]
-            curr8 = curr_dict[dfa.transitions[state]['8']]
-            curr9 = curr_dict[dfa.transitions[state]['9']]
-            next_dict[state] = curr0 + curr1 + curr2 + curr3 + curr4 + curr5 + curr6 + curr7 + curr8 + curr9
+            next_dict[state] = curr_dict[dfa.transitions[state]['0']] + curr_dict[dfa.transitions[state]['1']] + \
+                               curr_dict[dfa.transitions[state]['2']] + curr_dict[dfa.transitions[state]['3']] + \
+                               curr_dict[dfa.transitions[state]['4']] + curr_dict[dfa.transitions[state]['5']] + \
+                               curr_dict[dfa.transitions[state]['6']] + curr_dict[dfa.transitions[state]['7']] + \
+                               curr_dict[dfa.transitions[state]['8']] + curr_dict[dfa.transitions[state]['9']]
 
         for state1 in dfa.states:
             curr_dict[state1] = next_dict[state1]
 
-    return curr_dict['{q0}']
+    return curr_dict['{start_state}']
 
 
 def main():
     nfa = NFA(  # this code builds the weakly divisible by 7 NFA
-        states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q0prime', 'q1prime', 'q2prime', 'q3prime',
-                'q4prime', 'q5prime', 'q6prime'},
+        states={'start_state', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q0prime', 'q1prime', 'q2prime', 'q3prime',
+                'q4prime', 'q5prime', 'q6prime', 'fail_state'},
         input_symbols={'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'},
         transitions={
-            'q0': {'1': {'q1', 'q0prime'}, '2': {'q2', 'q0prime'}, '3': {'q3', 'q0prime'},
+            'start_state': {'0': {'fail_state'}, '1': {'q1', 'q0prime'}, '2': {'q2', 'q0prime'}, '3': {'q3', 'q0prime'},
+                            '4': {'q4', 'q0prime'}, '5': {'q5', 'q0prime'}, '6': {'q6', 'q0prime'},
+                            '7': {'q0', 'q0prime'},
+                            '8': {'q1', 'q0prime'}, '9': {'q2', 'q0prime'}},
+            'fail_state': {'0': {'fail_state'}, '1': {'fail_state'}, '2': {'fail_state'}, '3': {'fail_state'},
+                           '4': {'fail_state'}, '5': {'fail_state'}, '6': {'fail_state'}, '7': {'fail_state'},
+                           '8': {'fail_state'}, '9': {'fail_state'}},
+            'q0': {'0': {'q0', 'q0prime'}, '1': {'q1', 'q0prime'}, '2': {'q2', 'q0prime'}, '3': {'q3', 'q0prime'},
                    '4': {'q4', 'q0prime'}, '5': {'q5', 'q0prime'}, '6': {'q6', 'q0prime'}, '7': {'q0', 'q0prime'},
                    '8': {'q1', 'q0prime'}, '9': {'q2', 'q0prime'}},
             'q1': {'0': {'q3', 'q1prime'}, '1': {'q4', 'q1prime'}, '2': {'q5', 'q1prime'}, '3': {'q6', 'q1prime'},
@@ -82,12 +78,12 @@ def main():
             'q6prime': {'0': {'q4prime'}, '1': {'q5prime'}, '2': {'q6prime'}, '3': {'q0prime'}, '4': {'q1prime'},
                         '5': {'q2prime'}, '6': {'q3prime'}, '7': {'q4prime'}, '8': {'q5prime'}, '9': {'q6prime'}}
         },
-        initial_state='q0',
+        initial_state='start_state',
         final_states={'q0', 'q0prime'}
     )
 
     str_length = int(input("Enter an integer for string length: "))
-    dfa = DFA.from_nfa(nfa)     # creates a DFA from the above built NFA
+    dfa = DFA.from_nfa(nfa)  # creates a DFA from the above built NFA
 
     num_strings = count(str_length, dfa)
     print("The number of strings of length", str_length, "accepted by the DFA is", num_strings)
